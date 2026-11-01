@@ -20,6 +20,7 @@ trait ExprParser[Result] extends JavaTokenParsers:
   /** factor ::= wholeNumber | "+" factor | "-" factor | "(" expr ")" */
   def factor: Parser[Result] = 
     wholeNumber ^^ onNumber
+    | indent ^^ onVariable
     | "+" ~> factor ^^ onPlusFactor
     | "-" ~> factor ^^ onMinusFactor
     | "(" ~> expr <~ ")" ^^ onParenExpr
@@ -27,6 +28,7 @@ trait ExprParser[Result] extends JavaTokenParsers:
   def onExpr: Result ~ Option[String ~ Result] => Result
   def onTerm: Result ~ Option[String ~ Result] => Result
   def onNumber: String => Result
+  def onVariable: String => Result
   def onPlusFactor: Result => Result
   def onMinusFactor: Result => Result
   def onParenExpr: Result => Result

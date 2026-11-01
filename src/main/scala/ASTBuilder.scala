@@ -17,6 +17,9 @@ object ASTBuilder extends ExprParser[Expr]:
 
   override def onNumber = Constant.apply compose (_.toInt)
 
+  //an identifier in a factor becomes a Variable reference
+  override def onVariable = Variable.apply
+
   override def onPlusFactor = identity
 
   override def onMinusFactor = UMinus.apply

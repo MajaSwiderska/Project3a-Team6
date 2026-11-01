@@ -1,7 +1,7 @@
 package edu.luc.cs.laufer.cs371.expressions
 
 import util.Try
-import org.json4s.JsonAST.{JValue, JObject, JString, JArray}
+import org.json4s.JsonAST.{JValue, JObject, JString, JArray, JInt}
 import Expr.*
 import Stmt.*
 
@@ -40,7 +40,7 @@ object behaviors:
     case Mod(l, r)   => 1 + math.max(height(l), height(r))
 
   def toJson(e: Expr): JValue = e match
-    case Constant(c) => JValue(c)
+    case Constant(c) => JInt(c)
     case Variable(n) => JObject("Variable" -> JString(n))
     case UMinus(r)   => JObject(e.productPrefix -> toJson(r))
     case p =>

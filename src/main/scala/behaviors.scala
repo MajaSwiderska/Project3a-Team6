@@ -1,8 +1,7 @@
 package edu.luc.cs.laufer.cs371.expressions
 
 import util.Try
-import org.json4s.JsonAST.JValue
-import org.json4s.JsonDSL.*
+import org.json4s.JsonAST.{JValue, JObject, JArray}
 import Expr.*
 import Stmt.*
 
@@ -49,13 +48,22 @@ object behaviors:
   def toJson(s: Stmt): JValue = s match
     case ExprStmt(e) => "ExprStmt" -> toJson(e)
     case Assign(variable(n), e) => "Assign" -> ("Variable" -> n) -> toJson(e)
-    case Cond(g, t, e) => "Cond" -> ("guard" -> toJson(g)) ->
-                                    ("then" -> toJson(t)) ->  
-                                    ("else" -> toJson(e))
-    case Loop(g, b) => "Loop" -> 
-                                ("guard" -> toJson(g)) ->  
-                                ("body" -> toJson(b))
-    case Block(ss*) => "Block" -> ss.map(toJson(_): JValue)
+    case Cond(g, t, e) =>
+      JObject(
+        "Cond" -> JObject(
+          "guard" -> toJson(g),
+          "then"  -> toJson(t),
+          "else"  -> toJson(e)
+        )
+      )
+    case Loop(g, b) =>
+      JObject(
+        "Loop" -> JObject(
+          "guard" -> toJson(g),
+          "body"  -> toJson(b)
+        )
+      )
+    case Block(ss*) => "Block" -> JArray(ss.map(toJson(_): JValue))
 
   def toJson(p: Program): JValue = Json(p: Stmt)
 

@@ -6,7 +6,7 @@ import Expr.*
 import Stmt.*
 
 object behaviors:
-  
+
   private def evaluateR(e: Expr): Int = e match
     case Constant(c) => c
     case Variable(n) => throw new IllegalArgumentException(s"unbound variable: $n")
@@ -40,7 +40,7 @@ object behaviors:
     case Mod(l, r)   => 1 + math.max(height(l), height(r))
 
   def toJson(e: Expr): JValue = e match
-    case Constant(c) => JInt(c)
+    case Constant(c) => JValue(c)
     case Variable(n) => JObject("Variable" -> JString(n))
     case UMinus(r)   => JObject(e.productPrefix -> toJson(r))
     case p =>

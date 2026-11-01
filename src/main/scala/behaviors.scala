@@ -2,7 +2,7 @@ package edu.luc.cs.laufer.cs371.expressions
 
 import util.Try
 import org.json4s.JsonAST.JValue
-import org.json4s.JsonDLS.*
+import org.json4s.JsonDSL.*
 import Expr.*
 import Stmt.*
 

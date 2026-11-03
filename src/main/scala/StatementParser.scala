@@ -9,9 +9,9 @@ object StatementParser extends JavaTokenParsers:
 
     private val reserved = Set("if", "else", "while")
     private def identifier: Parser[String] = 
-        ident ^? { case s if !reserved.contains(s) =? s }
+        ident ^? { case s if !reserved.contains(s) => s }
 
-    def expressions: Parser[Expr] = term ~ rep(("+" | "-") ~ term) ^^
+    def expression: Parser[Expr] = term ~ rep(("+" | "-") ~ term) ^^
         { case first ~ rest => rest.foldLeft(first) {
             case (acc, "+" ~ t) => Plus(acc, t)
             case (acc, "-" ~ t) => Minus(acc, t)
@@ -29,13 +29,13 @@ object StatementParser extends JavaTokenParsers:
         | identifier ^^ (s => Variable(s))
         | "+" ~> factor
         | "-" ~> factor ^^ (e => UMinus(e))
-        | "(" ~> expressions <~ ")"
+        | "(" ~> expression <~ ")"
 
     def block: Parser[Block] =
         "{" ~> rep(statement) <~ "}" ^^ (ss => Block(ss*))
 
     def assignment: Parser[Assign] =
-        (identifier <~ "=") ~ (expressions <~ ";") ^^
+        (identifier <~ "=") ~ (expression <~ ";") ^^
             { case name ~ e => Assign(Variable(name), e) }
 
     def conditional: Parser[Cond] =
@@ -50,7 +50,7 @@ object StatementParser extends JavaTokenParsers:
         | conditional
         | loop
         | block
-        | (expressions <~ ";") ^^ (e => ExprStmt(e))
+        | (expression <~ ";") ^^ (e => ExprStmt(e))
 
     def program: Parser[Program] =
         rep(statement) ^^ (ss => Block(ss*))

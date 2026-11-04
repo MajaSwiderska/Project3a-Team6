@@ -1,5 +1,8 @@
 package edu.luc.cs.laufer.cs371.expressions
 
+//Keeps the raw combinator result instead of building an AST
+//Useful for showing the untyped parse tree in Calculators output
+//Must overirde all 7 hooks or the compiler yells "object creation impossible"
 object RawBuilder extends ExprParser[Any]:
   override def onExpr = identity
   override def onTerm = identity

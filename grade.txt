@@ -1,0 +1,63 @@
+========================================================================
+COMP 371 Project 3a: MiniJS Front End - Evaluation Report
+========================================================================
+Team: Team_6
+Tag: None (HEAD commit d068a45)
+
+------------------------------------------------------------------------
+RUBRIC BREAKDOWN & DETAILED EVALUATION
+------------------------------------------------------------------------
+
+1. Grammar and Resulting AST: 1.25 / 1.5
+   - Expressions and Precedence: Implemented in `src/main/scala/StatementParser.scala`. `expression` and `term` use `rep` and `foldLeft` for left-associativity and proper precedence (*, /, % over +, -).
+   - Number and Unary Minus Defect: Uses default `wholeNumber` from `JavaTokenParsers`, which matches `-?\d+`, parsing negative literals like `-3` directly as `Constant(-3)` instead of `UMinus(Constant(3))`.
+   - Identifiers: Excludes reserved keywords `if`, `else`, `while` via `ident ^? { case s if !reserved.contains(s) => s }`.
+   - Statements and AST: `src/main/scala/ast.scala` defines `enum Expr` and `enum Stmt` deriving `CanEqual`. `Cond` models `elseBranch` as an empty `Block` rather than `Option[Block]`.
+
+2. Parser: 1.25 / 1.5
+   - Required Grammar Productions: Implemented in `StatementParser.scala` (`statement`, `assignment`, `conditional`, `loop`, `block`).
+   - Top-Level repl Production: Implemented as `def program: Parser[Program] = rep(statement) ^^ (ss => Block(ss*))` instead of the standard name `repl`.
+   - Syntax Rejection: No validation or negative test cases were provided to verify syntax rejection of invalid programs.
+
+3. toJSON: 1.0 / 1.0
+   - Implemented in `src/main/scala/behaviors.scala` (`toJson` methods for `Expr`, `Stmt`, and `Program`).
+   - Generates nested JSON structures using `org.json4s.JsonAST`.
+   - Supports `Constant`, `Variable`, `UMinus`, binary ops, `ExprStmt`, `Assign`, `Cond`, `Loop`, and `Block`.
+
+4. Unparser / Pretty Printer: 1.0 / 1.0
+   - Implemented in `src/main/scala/Unparser.scala`.
+   - Generates parenthesized infix expressions.
+   - Statements placed on separate lines.
+   - Top-level statements properly rendered without enclosing outer braces.
+   - Blocks and control statements indented with two spaces per level.
+
+5. Testing: 0.5 / 1.0
+   - Test Results: All 21 tests passed (`sbt test` exit code 0).
+   - Strengths: `TestUnparser.scala` contains 12 good tests for unparsing statements and round-trip preservation.
+   - Deficiencies: Zero negative tests checking rejection of invalid syntax. Zero unit tests for `toJson`. Only 2 parser tests from the starter expression parser. Missing comprehensive test coverage for statement parsing edge cases.
+
+6. REPL: 0.75 / 1.0
+   - Implemented in `src/main/scala/MiniJsRepl.scala`.
+   - Interactive loop via `Source.stdin.getLines()`.
+   - Echoes input and prints AST, JSON, and unparsed code. Handles errors with messages.
+   - Defect: The `minijs> ` prompt is printed only after processing a line (`print("minijs> ")`), meaning there is no initial prompt before the first user input.
+
+------------------------------------------------------------------------
+EXTRA CREDIT
+------------------------------------------------------------------------
+- JLine3 Integration: Not implemented.
+- Multi-line Input: Not implemented.
+- Successive else-if Branches: Not implemented.
+- F-algebraic AST and Droste Unparser: Not implemented.
+
+Extra Credit Total: 0.0
+
+------------------------------------------------------------------------
+FINAL GRADE
+------------------------------------------------------------------------
+Base Score: 5.75 / 7.0
+Extra Credit: 0.0
+Final Score: 5.75 / 7.0
+
+Feedback: The unparser implementation is clean and handles top-level statements well. To improve, ensure an initial prompt is displayed before reading the first line in the REPL, parse negative numbers using UMinus rather than wholeNumber, add negative syntax tests, and test toJson. Also remember to push the required `p3a` git tag.
+========================================================================

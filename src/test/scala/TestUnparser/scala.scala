@@ -11,7 +11,6 @@ class TestUnparser extends AnyFunSuite:
     )
     assert(result.successful, s"Could not parse: $source")
     result.get
-
   private def unparse(source: String): String =
     Unparser.unparse(parse(source))
 

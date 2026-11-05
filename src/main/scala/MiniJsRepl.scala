@@ -2,8 +2,8 @@ package edu.luc.cs.laufer.cs371.expressions
 
 import scala.io.Source
 import StatementParser.* 
-import behaviors.* 
-import org.json4.native.JsonMethods. {pretty, render}
+import behaviors.*
+import org.json4s.native.JsonMethods.{pretty, render}
 
 //Read eval print loop
 //For each line: parse, print AST, print JSON, print unparsed source

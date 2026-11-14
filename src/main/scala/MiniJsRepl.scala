@@ -32,6 +32,7 @@ object MiniJsRepl:
         if args.nonEmpty then
             process(args.mkString(" "))
         else 
+            print("minijs> ")
             Source.stdin.getLines().foreach { line => 
                 process(line) 
                 print("minijs> ")   //prompt after processing

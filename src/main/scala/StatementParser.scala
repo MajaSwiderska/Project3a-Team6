@@ -33,10 +33,12 @@ object StatementParser extends JavaTokenParsers:
             case (acc, "%" ~ f) => Mod(acc, f)
         } }
 
+    private def digits: Parser[String] = "\\d+".r
+
     //factor ::= wholeNumber | ident| "+" factor | "-" factor | "(" expression ")"
     //`~>` keeps only the right result(drops the "+"), `<~` keeps only the left (drops the ")"). Useful for ignoring punctuations
     def factor: Parser[Expr] = 
-        wholeNumber ^^ (s => Constant(s.toInt))
+        digits ^^ (s => Constant(s.toInt))
         | identifier ^^ (s => Variable(s))
         | "+" ~> factor
         | "-" ~> factor ^^ (e => UMinus(e))
@@ -76,6 +78,8 @@ object StatementParser extends JavaTokenParsers:
     //program ::= statement* (a block without braces)
     def program: Parser[Program] =
         rep(statement) ^^ (ss => Block(ss*))
+    
+    def repl: Parser[Program] = program
 
 end StatementParser
 

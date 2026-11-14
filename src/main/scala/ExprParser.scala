@@ -16,10 +16,12 @@ trait ExprParser[Result] extends JavaTokenParsers:
   /** term ::= factor { { "*" | "/" | "%" } factor }* */
   def term: Parser[Result] = factor ~! opt(("*" | "/" | "%") ~ factor) ^^ onTerm
 
+  private def digits: Parser[String] = "\\d+".r
+
   /** factor ::= wholeNumber | "+" factor | "-" factor | "(" expr ")" */
   //Added `ident` so that `x` in an expression becomes Variable(x) instead of failing to parse
   def factor: Parser[Result] = 
-    wholeNumber ^^ onNumber
+    digits ^^ onNumber
     | ident ^^ onVariable //NEW
     | "+" ~> factor ^^ onPlusFactor //unary + is a no-op
     | "-" ~> factor ^^ onMinusFactor//unary - wraps in UMinus

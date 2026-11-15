@@ -92,4 +92,42 @@ object behaviors:
   //Program is a block so just delegate
   def toJson(p: Program): JValue = toJson(p: Stmt)
 
+  private def void: Value = Value.Num(0)
+
+  def evalExpr(e: Expr, store: Store): Int = e match
+    case Constant(c) => c
+    case Variable(n) =>
+      store.getOrElse(n, throw new NoSuchElementException(n)).asInstanceOf[Value.Num].value
+    case UMinus(r) => -evalExpr(r, store)
+    case Plus(l, r) => evalExpr(l, store) + evalExpr(r, store)
+    case Minus(l, r) => evalExpr(l, store) - evalExpr(r, store)
+    case Times(l, r) => evalExpr(l, store) * evalExpr(r, store)
+    case Div(l, r) => evalExpr(l, store) / evalExpr(r, store)
+    case Mod(l, r) => evalExpr(l, store) % evalExpr(r, store)
+
+  def evaluate(s: Stmt, store: Store): Value = s match
+    case ExprStmt(e) =>
+      evalExpr(s, store)
+      void
+    case Assign(Variable(n), e) =>
+      val v = evalExpr(e, store)
+      store(n) = Value.Num(v)
+      void
+    case Cond(g, t, e) =>
+      if evalExpr(g, store) != 0 then evaluate(t, store)
+      else evaluate(e, store)
+    case Loop(g, b) =>
+      while evalExpr(g, store) != 0 do evaluate(b, store)
+      void
+    case Block(ss*) =>
+      var result: Value = void
+      for st <- ss do result = evaluate(st, store)
+      result
+    
+  def evaluate(p: Program): Try[Value] =
+    Try {
+      val store: Store = scala.collection.mutable.Map.empty
+      evaluate(p: Stmt, store)
+    }
+
 end behaviors

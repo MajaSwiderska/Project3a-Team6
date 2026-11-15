@@ -97,7 +97,7 @@ object behaviors:
   def evalExpr(e: Expr, store: Store): Int = e match
     case Constant(c) => c
     case Variable(n) =>
-      store.getOrElse(n, throw new NoSuchElementException(n)).asInstanceOf[Value.Num].value
+      store.getOrElse(n, throw new NoSuchFieldException(n)).asInstanceOf[Value.Num].value
     case UMinus(r) => -evalExpr(r, store)
     case Plus(l, r) => evalExpr(l, store) + evalExpr(r, store)
     case Minus(l, r) => evalExpr(l, store) - evalExpr(r, store)

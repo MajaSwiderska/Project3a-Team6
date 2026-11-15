@@ -5,6 +5,13 @@ import org.json4s.JsonAST.{JValue, JObject, JString, JArray, JInt}
 import Expr.*
 import Stmt.*
 
+//Runtime value, for now, the only alternatibe is an integer
+enum Value derives CanEqual:
+  case Num(value: Int)
+
+//mutable store mapping variable names to runtime values
+type Store = scala.collection.mutable.Map[String, Value]
+
 //Everything that "does something" with the AST: evaluate, size, height, toJson
 //All of them are structural recursion: case on the shape recurse on the children combine
 object behaviors:

@@ -107,7 +107,7 @@ object behaviors:
 
   def evaluate(s: Stmt, store: Store): Value = s match
     case ExprStmt(e) =>
-      evalExpr(s, store)
+      evalExpr(e, store)
       void
     case Assign(Variable(n), e) =>
       val v = evalExpr(e, store)
@@ -117,7 +117,9 @@ object behaviors:
       if evalExpr(g, store) != 0 then evaluate(t, store)
       else evaluate(e, store)
     case Loop(g, b) =>
-      while evalExpr(g, store) != 0 do evaluate(b, store)
+      while evalExpr(g, store) != 0 do 
+        evaluate(b, store)
+        ()
       void
     case Block(ss*) =>
       var result: Value = void

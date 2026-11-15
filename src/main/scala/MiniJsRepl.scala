@@ -1,6 +1,7 @@
 package edu.luc.cs.laufer.cs371.expressions
 
 import scala.io.Source
+import scala.collection.mutable
 import StatementParser.* 
 import behaviors.*
 import org.json4s.native.JsonMethods.{pretty, render}
@@ -12,6 +13,9 @@ object MiniJsRepl:
     //Process one line of input (or one shell arg)
     def process(input: String): Unit = 
         println("You entered: " + input)
+
+        val store: Store = mutable.Map.empty
+        println("Memory: " + store)
         //parseAll builds a Program from the full input
         // Success = parsed, Failure = recoverable error, Error = unrecoverable
         parseAll(program, input) match
@@ -23,6 +27,16 @@ object MiniJsRepl:
                 println(pretty(render(toJson(ast))))
                 println("The unparsed statements are:")
                 println(Unparser.unparse(ast))
+
+                val visibleStore: Store = mutable.Map.empty
+                val tryResult = try
+                    val r = evaluate(ast: Stmt, visibleStore)
+                    scala.util.Success(r)
+                catch case ex: Throwable => scala.util.Failure(ex)
+
+                println("It evaluates to " + tryResult)
+                println("Memory: " + visibleStore)
+
             case Failure(msg, _) => println("Couldn't parse: " + msg)
             case Error(msg, _)   => println("Parse error: " + msg)
 

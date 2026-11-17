@@ -28,6 +28,8 @@ object MiniJsRepl:
                 println("The unparsed statements are:")
                 println(Unparser.unparse(ast))
 
+                //Evaluate against a visible store so we can print it after.
+                //try/catch turns any failure into a Try value we can print.
                 val visibleStore: Store = mutable.Map.empty
                 val tryResult = try
                     val r = evaluate(ast: Stmt, visibleStore)

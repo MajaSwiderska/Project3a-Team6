@@ -73,6 +73,7 @@ object behaviors:
     case ExprStmt(e) =>
       JObject("ExprStmt" -> toJson(e))
     case Assign(Variable(n), e) =>
+      //keeps the variable name separate from RHS so the JSON is readable
       JObject("Assign" -> JObject("Variable" -> JString(n), "expr" -> toJson(e)))
     case Cond(g, t, e) =>
       JObject("Cond" -> JObject(
@@ -92,11 +93,17 @@ object behaviors:
   //Program is a block so just delegate
   def toJson(p: Program): JValue = toJson(p: Stmt)
 
+  //void is what assignment, loop and empty block evaluate to
+  //the specs example output shows Num(0) for these
   private def void: Value = Value.Num(0)
 
+  //evaluate a single expression against the store, variable look themselves up in the store
+  //a missing variable throws NoSuchFieldException
   def evalExpr(e: Expr, store: Store): Int = e match
     case Constant(c) => c
     case Variable(n) =>
+      //getOrElse, if not in store throw NoSuchFieldException
+       // .asInstanceOf[Value.Num] unwraps Num so we can access .value.
       store.getOrElse(n, throw new NoSuchFieldException(n)).asInstanceOf[Value.Num].value
     case UMinus(r) => -evalExpr(r, store)
     case Plus(l, r) => evalExpr(l, store) + evalExpr(r, store)
@@ -105,27 +112,41 @@ object behaviors:
     case Div(l, r) => evalExpr(l, store) / evalExpr(r, store)
     case Mod(l, r) => evalExpr(l, store) % evalExpr(r, store)
 
+  //evaluate a statement against the store and return its value
+  //void producing statements return Num(0)
+  //expressions and blocks return their actual value
   def evaluate(s: Stmt, store: Store): Value = s match
+    //"expr ; " evaluate for side effects, produce void
     case ExprStmt(e) =>
       evalExpr(e, store)
       void
+    //"x = expr ;" evaluate RHS, store it in the mutable map, produce void
+    //if x is new the map just adds it
     case Assign(Variable(n), e) =>
       val v = evalExpr(e, store)
       store(n) = Value.Num(v)
       void
+    //"ig (guard) then else else" evaluate guard, run chosen branch
+    //nonzero = true. zero = false
     case Cond(g, t, e) =>
       if evalExpr(g, store) != 0 then evaluate(t, store)
       else evaluate(e, store)
+    //"while (guard) body" loop until guard is falsy
+    //the () at the end makes the loop bodys type Unit, which avoids a "discarded non-Unit value" warning
     case Loop(g, b) =>
       while evalExpr(g, store) != 0 do 
         evaluate(b, store)
         ()
       void
+    //"{ stmt* }" run in order, return value of last statement.
+    //empty block returns void (matches the spec's Num(0)).
     case Block(ss*) =>
       var result: Value = void
       for st <- ss do result = evaluate(st, store)
       result
-    
+
+  //top-level, run a Program against a fresh empty store.
+  //wrapped in Try so a NoSuchFieldException becomes Failure and the REPL doesn't crash.  
   def evaluate(p: Program): Try[Value] =
     Try {
       val store: Store = scala.collection.mutable.Map.empty

@@ -13,7 +13,7 @@ import org.json4s.native.JsonMethods.{pretty, render}
 
 // Read-eval-print loop for MiniJS.
 object MiniJsRepl:
-
+    private val store: Store = mutable.Map.empty
     // Interpret statements using the mutable store.
     // Expressions produce their integer value; assignments and loops are void.
     // A block produces the value of its last statement.
@@ -48,8 +48,7 @@ object MiniJsRepl:
     def process(input: String): Unit =
         println("You entered: " + input)
 
-        val store: Store = mutable.Map.empty
-        println("Memory: " + store)
+            println("Memory: " + store)
 
         // Parse the complete input as a program.
         parseAll(program, input) match
